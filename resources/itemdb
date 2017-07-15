@@ -1,0 +1,18 @@
+<itemDatabase>
+    <items>
+        <item name="grass" char="." color="#4ec23d">
+            <desc>a grassy area</desc>
+        </item>
+        <item name="tree" char="T" color="#964b00">
+            <desc>a small tree</desc>
+            <solid>true</solid>
+        </item>
+        <item name="dirt" char="." color="#c79576">
+            <desc>a patch of dirt</desc>
+        </item>
+        <item name="hoe" char="l" color="#a8a8a8">
+            <desc>a rusty hoe</desc>
+            <portable>true</portable>
+        </item>
+    </items>
+</itemDatabase>

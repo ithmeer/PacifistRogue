@@ -16,33 +16,15 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package items;
-
-import model.Entity;
-import model.Item;
-import model.ItemDatabase;
-import model.World;
-import utilities.Loc;
+package utilities;
 
 /**
- * Created by Ithmeer on 7/11/2017.
+ * Created by Ithmeer on 7/15/2017.
  */
-public class Hoe extends BaseItem
+public enum MoveType
 {
-    @Override
-    public void use(World world, Entity user, Loc loc)
-    {
-        ItemDatabase itemDb = ItemDatabase.getInstance();
-
-        Item item = world.getSquare(loc);
-        if (item.getName() == "grass")
-        {
-            item.transform(itemDb.getItem("dirt"));
-        }
-    }
-
-    @Override
-    public void use(World world, Entity user)
-    {
-    }
+    Move,
+    PickUp,
+    Use,
+    UseHeld
 }

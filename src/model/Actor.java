@@ -20,20 +20,24 @@ package model;
 
 import items.BaseItem;
 import utilities.Loc;
+import utilities.MoveType;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 /**
+ * An entity that can perform actions.
  * Created by Ithmeer on 5/23/2016.
  */
 public abstract class Actor extends Entity
 {
     protected final World _world;
-
-    private final List<BaseItem> _heldItems = new ArrayList<>();
-    private BaseItem _rightHand;
+    protected final Queue<Turn> _actionQueue = new LinkedList<>();
+    protected final List<BaseItem> _heldItems = new ArrayList<>();
+    protected BaseItem _primaryItem;
 
     public Actor(World world, Loc loc, Color color, char sym)
     {
@@ -41,17 +45,58 @@ public abstract class Actor extends Entity
         _world = world;
     }
 
-    public void take()
+    /**
+     * Queue up a new turn.
+     * @param turn the turn to take
+     */
+    public void queueTurn(Turn turn)
+    {
+        _actionQueue.add(turn);
+    }
+
+    /**
+     * Take a turn.
+     */
+    public void takeTurn()
+    {
+        if (isIdle())
+        {
+            return;
+        }
+
+        Turn nextMove = _actionQueue.peek();
+
+        if (!nextMove.isMoveComplete())
+        {
+            doMove(nextMove.getType(), nextMove.getArgs());
+        }
+
+        nextMove.consumeTurn();
+
+        if (nextMove.isTurnComplete())
+        {
+            _actionQueue.remove();
+        }
+    }
+
+    /**
+     * Pick up an item at the current location.
+     */
+    public void pickUp()
     {
         BaseItem item = _world.getDroppedItem(_loc);
         if (item != null && item.isPortable())
         {
             _world.removeDroppedItem(item);
-            _rightHand = item;
+            _primaryItem = item;
             _heldItems.add(item);
         }
     }
 
+    /**
+     * Move to a new location.
+     * @param loc the new location
+     */
     public void move(Loc loc)
     {
         if (!_world.collides(loc))
@@ -61,13 +106,61 @@ public abstract class Actor extends Entity
         }
     }
 
-    public void use()
+    /**
+     * Use the item at the given location.
+     * @param loc the location the item is at
+     */
+    public void use(Loc loc)
     {
-
+        BaseItem item = _world.getSquare(loc);
+        if (item != null)
+        {
+            item.use(_world, this);
+        }
     }
 
+    public void useHeldItem(Loc loc)
+    {
+        if (_primaryItem != null)
+        {
+            _primaryItem.use(_world, this, loc);
+        }
+    }
+
+    /**
+     * Get the location of this actor.
+     * @return the actor location
+     */
     public Loc getLoc()
     {
         return _loc;
+    }
+
+    /**
+     * The idle state of the actor.
+     * @return true if idle
+     */
+    public boolean isIdle()
+    {
+        return _actionQueue.isEmpty();
+    }
+
+    private void doMove(MoveType type, Object... args)
+    {
+        switch (type)
+        {
+            case Move:
+                move((Loc) args[0]);
+                break;
+            case PickUp:
+                pickUp();
+                break;
+            case Use:
+                use((Loc) args[0]);
+                break;
+            case UseHeld:
+                useHeldItem((Loc) args[0]);
+                break;
+        }
     }
 }

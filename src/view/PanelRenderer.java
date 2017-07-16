@@ -103,20 +103,9 @@ public class PanelRenderer extends JPanel implements ScreenRenderer
     {
         try
         {
-            SwingUtilities.invokeAndWait(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    repaint();
-                }
-            });
+            SwingUtilities.invokeAndWait(this::repaint);
         }
-        catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
-        catch (InvocationTargetException e)
+        catch (InterruptedException | InvocationTargetException e)
         {
             e.printStackTrace();
         }

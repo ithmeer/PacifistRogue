@@ -16,33 +16,27 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package items;
-
-import model.Entity;
-import model.Item;
-import model.ItemDatabase;
-import model.World;
-import utilities.Loc;
+package utilities;
 
 /**
- * Created by Ithmeer on 7/11/2017.
+ * A class for static helper methods.
+ *
+ * Created by Ithmeer on 7/16/2017.
  */
-public class Hoe extends BaseItem
+public class Helpers
 {
-    @Override
-    public void use(World world, Entity user, Loc loc)
+    /**
+     * Safely cast the given object to the given class.
+     *
+     * @param o the object
+     * @param desiredType the Class to cast to
+     * @param <T> the type to cast to
+     * @return the object as the correct type, or null if invalid
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T safeCast(Object o, Class<T> desiredType)
     {
-        ItemDatabase itemDb = ItemDatabase.getInstance();
-
-        Item item = world.getSquare(loc);
-        if (item.getName() == "grass")
-        {
-            item.transform(itemDb.getItem("dirt"));
-        }
+        return desiredType.isInstance(o) ? (T) o : null;
     }
 
-    @Override
-    public void use(World world, Entity user)
-    {
-    }
 }

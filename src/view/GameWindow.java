@@ -48,7 +48,6 @@ public class GameWindow extends JFrame
 
         add(_panel);
         pack();
-        setVisible(true);
 
         _panel.initialize(getGraphics());
         _controller = new PlayerController(_panel);
@@ -56,5 +55,7 @@ public class GameWindow extends JFrame
 
         _panel.setFocusable(true);
         _panel.requestFocusInWindow();
+
+        setVisible(true);
     }
 }

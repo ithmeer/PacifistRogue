@@ -20,10 +20,16 @@ package model;
 
 import interfaces.ScreenRenderer;
 import items.BaseItem;
+import utilities.Helpers;
 import utilities.Loc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * Created by Ithmeer on 4/19/2016.
@@ -36,6 +42,7 @@ public class World implements Runnable
     private final List<Entity> _entities;
     private final List<BaseItem> _droppedItems;
     private final List<Loc> _dirty;
+    private final CyclicBarrier _gate = new CyclicBarrier(3);
     private Map _currentMap;
 
     public World(ScreenRenderer renderer)
@@ -61,10 +68,15 @@ public class World implements Runnable
 
         while (true)
         {
-            _dirty.stream().forEach(loc -> _presenter.draw(_currentMap.getSquare(loc)));
+            _dirty.forEach(loc -> _presenter.draw(_currentMap.getSquare(loc)));
+            _droppedItems.forEach(_presenter::draw);
+            _entities.forEach(_presenter::draw);
 
-            _droppedItems.stream().forEach(i -> _presenter.draw(i));
-            _entities.stream().forEach(e -> _presenter.draw(e));
+            // give each actor a turn
+            _entities.stream()
+                     .map(e -> Helpers.safeCast(e, Actor.class))
+                     .filter(Objects::nonNull)
+                     .forEach(Actor::takeTurn);
 
             _renderer.refresh();
         }
@@ -109,7 +121,7 @@ public class World implements Runnable
                             .filter(i -> i.getLoc().equals(loc)).findFirst().orElse(null);
     }
 
-    public void removeDroppedItem(Item item)
+    public void removeDroppedItem(BaseItem item)
     {
         _droppedItems.remove(item);
     }
